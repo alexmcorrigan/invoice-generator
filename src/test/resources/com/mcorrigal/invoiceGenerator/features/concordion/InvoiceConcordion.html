@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:concordion="http://www.concordion.org/2007/concordion">
+	<head>
+		<title>Invoice Acceptance</title>
+		<link href="concordion.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<h1>Invoice Acceptance</h1>
+		<p>In order to get paid as a consultant and save me time I want to invoices to be automatically generated for me</p>
+		<div class="example">
+			<h2>Example: Simple Invoice</h2>
+			<h3>Given</h3>
+			<p>A <i concordion:execute="initialise()">new invoice</i> with date of <i concordion:set="#invoiceDate"> 31/07/2012</i> and invoice number is <i concordion:set="#invoiceNumber">NYSE-2012-07</i></p>
+			<h4>And</h4>
+			<p>I have worked these weeks:</p>
+			<table concordion:execute="collectWeekForInvoice(#weekBeginning, #daysWorked, #workPlaceDescription, #dayRate)">
+				<tr>
+					<th concordion:set="#weekBeginning">Week Beginning</th>
+					<th concordion:set="#daysWorked">Days Worked</th>
+					<th concordion:set="#workPlaceDescription">Work Place Description</th>
+					<th concordion:set="#dayRate">Day Rate</th>
+				</tr>
+				<tr>
+					<td>02/07/2012</td>
+					<td>5</td>
+					<td>Tester</td>
+					<td>450.00</td>
+				</tr>
+				<tr>
+					<td>09/07/2012</td>
+					<td>5</td>
+					<td>Tester</td>
+					<td>450.00</td>
+				</tr>
+				<tr>
+					<td>16/07/2012</td>
+					<td>5</td>
+					<td>Tester</td>
+					<td>450.00</td>
+				</tr>
+				<tr>
+					<td>23/07/2012</td>
+					<td>5</td>
+					<td>Tester</td>
+					<td>450.00</td>
+				</tr>
+				<tr>
+					<td>30/07/2012</td>
+					<td>2</td>
+					<td>Tester</td>
+					<td>450.00</td>
+				</tr>
+			</table>
+			<h3>When</h3>
+			<p>When the invoice is <i concordion:execute="generateInvoice(#invoiceDate, #invoiceNumber)">generated</i></p>
+			<h3>Then</h3>
+			<p>Then the gross amount for each week is calculated at:</p>
+			<table concordion:execute="#grossAmount = getGrossAmountForWeek(#weekBeginning, #workPlaceDescription)">
+				<tr>
+					<th concordion:set="#weekBeginning">Week Beginning</th>
+					<th concordion:set="#workPlaceDescription">Work Place Description</th>
+					<th concordion:assertEquals="#grossAmount">Gross Amount</th>
+				</tr>
+				<tr>
+					<td>02/07/2012</td>
+					<td>Tester</td>
+					<td>2250.00</td>
+				</tr>
+				<tr>
+					<td>09/07/2012</td>
+					<td>Tester</td>
+					<td>2250.00</td>
+				</tr>
+				<tr>
+					<td>16/07/2012</td>
+					<td>Tester</td>
+					<td>2250.00</td>
+				</tr>
+				<tr>
+					<td>23/07/2012</td>
+					<td>Tester</td>
+					<td>2250.00</td>
+				</tr>
+				<tr>
+					<td>30/07/2012</td>
+					<td>Tester</td>
+					<td>900.00</td>
+				</tr>
+			</table>
+			<h4>And</h4>
+			<ul>
+				<li>The sub-total is <b concordion:assertEquals="getInvoiceSubTotal()">9900.00</b></li>
+				<li>The VAT is <b concordion:assertEquals="getInvoiceVat()">1980.00</b></li>
+				<li>The Total is <b concordion:assertEquals="getInvoiceTotal()">11880.00</b></li>
+			</ul>
+		</div>
+		<div class="example">
+			<h2>Example: Invoice where one week contains more than one work placement</h2>
+			<h3>Given</h3>
+			<p>A <i concordion:execute="initialise()">new invoice</i> with date of <i concordion:set="#invoiceDate"> 31/07/2012</i> and invoice number is <i concordion:set="#invoiceNumber">NYSE-2012-07</i></p>
+			<h4>And</h4>
+			<p>I have worked these weeks:</p>
+			<table concordion:execute="collectWeekForInvoice(#weekBeginning, #daysWorked, #workPlaceDescription, #dayRate)">
+				<tr>
+					<th concordion:set="#weekBeginning">Week Beginning</th>
+					<th concordion:set="#daysWorked">Days Worked</th>
+					<th concordion:set="#workPlaceDescription">Work Place Description</th>
+					<th concordion:set="#dayRate">Day Rate</th>
+				</tr>
+				<tr>
+					<td>02/07/2012</td>
+					<td>2</td>
+					<td>Tester</td>
+					<td>450.00</td>
+				</tr>
+				<tr>
+					<td>02/07/2012</td>
+					<td>3</td>
+					<td>Street Cleaner</td>
+					<td>50.00</td>
+				</tr>
+			</table>
+			<h3>When</h3>
+			<p>When the invoice is <i concordion:execute="generateInvoice(#invoiceDate, #invoiceNumber)">generated</i></p>
+			<h3>Then</h3>
+			<p>Then the gross amount for each week is calculated at:</p>
+			<table concordion:execute="#grossAmount = getGrossAmountForWeek(#weekBeginning, #workPlaceDescription)">
+				<tr>
+					<th concordion:set="#weekBeginning">Week Beginning</th>
+					<th concordion:set="#workPlaceDescription">Work Place Description</th>
+					<th concordion:assertEquals="#grossAmount">Gross Amount</th>
+				</tr>
+				<tr>
+					<td>02/07/2012</td>
+					<td>Tester</td>
+					<td>900.00</td>
+				</tr>
+				<tr>
+					<td>02/07/2012</td>
+					<td>Street Cleaner</td>
+					<td>150.00</td>
+				</tr>
+			</table>
+			<h4>And</h4>
+			<ul>
+				<li>The sub-total is <b concordion:assertEquals="getInvoiceSubTotal()">1050.00</b></li>
+				<li>The VAT is <b concordion:assertEquals="getInvoiceVat()">210.00</b></li>
+				<li>The Total is <b concordion:assertEquals="getInvoiceTotal()">1260.00</b></li>
+			</ul>
+		</div>
+	</body>
+</html>
